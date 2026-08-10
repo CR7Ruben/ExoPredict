@@ -115,6 +115,8 @@ ExoPredict/
 │   │
 │   ├── entrenar_modelo.py
 │   └── optimizar_modelo.py
+│   └── ajustar_umbral.py
+│   └── balancear_clases.py
 │
 ├── README.md
 └── requirements.txt
