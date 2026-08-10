@@ -1,0 +1,9 @@
+pandas → manejo y limpieza de datos.
+numpy → operaciones numéricas.
+requests → conexión con NASA Exoplanet Archive.
+matplotlib → generación de gráficas.
+seaborn → visualizaciones estadísticas.
+scikit-learn → modelos de Machine Learning y métricas.
+joblib → guardar/cargar nuestros modelos .pkl.
+streamlit → Dashboard.
+plotly → gráficas interactivas del Dashboard.
