@@ -19,11 +19,7 @@ from sklearn.metrics import (
     roc_auc_score
 )
 
-
-# ============================================================
 # CONFIGURACIÓN
-# ============================================================
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 INPUT_FILE = (
@@ -34,17 +30,12 @@ INPUT_FILE = (
 )
 
 MODELS_DIR = BASE_DIR / "models"
-
 MODELS_DIR.mkdir(
     parents=True,
     exist_ok=True
 )
 
-
-# ============================================================
 # VARIABLES DEL MODELO
-# ============================================================
-
 VARIABLES = [
     "koi_period",
     "koi_duration",
@@ -58,20 +49,14 @@ VARIABLES = [
     "koi_slogg",
     "koi_srad"
 ]
-
 OBJETIVO = "target"
 
-
-# ============================================================
 # CARGAR DATOS
-# ============================================================
-
 print("=" * 70)
 print("🚀 EXOPREDICT - OPTIMIZACIÓN DEL MODELO")
 print("=" * 70)
 
 print("\n📥 Cargando dataset...")
-
 datos = pd.read_csv(INPUT_FILE)
 
 X = datos[VARIABLES]
@@ -80,13 +65,8 @@ y = datos[OBJETIVO]
 print(f"✓ Registros: {len(datos)}")
 print(f"✓ Variables: {len(VARIABLES)}")
 
-
-# ============================================================
 # DIVISIÓN DE DATOS
-# ============================================================
-
-print("\n✂️ Separando datos...")
-
+print("\nSeparando datos...")
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -94,15 +74,10 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42,
     stratify=y
 )
-
 print(f"✓ Entrenamiento: {len(X_train)}")
 print(f"✓ Prueba: {len(X_test)}")
 
-
-# ============================================================
 # PIPELINE
-# ============================================================
-
 pipeline = Pipeline([
     (
         "imputer",
@@ -118,11 +93,7 @@ pipeline = Pipeline([
     )
 ])
 
-
-# ============================================================
 # ESPACIO DE HIPERPARÁMETROS
-# ============================================================
-
 parametros = {
 
     "modelo__n_estimators": [
@@ -164,13 +135,8 @@ parametros = {
     ]
 }
 
-
-# ============================================================
 # RANDOMIZED SEARCH
-# ============================================================
-
 print("\n🔎 Buscando los mejores hiperparámetros...")
-
 print("⏳ Esto puede tardar algunos minutos.\n")
 
 busqueda = RandomizedSearchCV(
@@ -184,49 +150,32 @@ busqueda = RandomizedSearchCV(
     n_jobs=-1
 )
 
-
 busqueda.fit(
     X_train,
     y_train
 )
 
-
-# ============================================================
 # MEJORES PARÁMETROS
-# ============================================================
-
 print("\n" + "=" * 70)
 print("🏆 MEJORES HIPERPARÁMETROS")
 print("=" * 70)
 
 for parametro, valor in busqueda.best_params_.items():
-
     print(
         f"{parametro}: {valor}"
     )
-
 
 print(
     f"\n⭐ Mejor F1 durante validación cruzada: "
     f"{busqueda.best_score_:.4f}"
 )
 
-
-# ============================================================
 # MODELO OPTIMIZADO
-# ============================================================
-
 modelo_optimizado = busqueda.best_estimator_
-
 pred = modelo_optimizado.predict(X_test)
-
 prob = modelo_optimizado.predict_proba(X_test)
 
-
-# ============================================================
 # MÉTRICAS
-# ============================================================
-
 accuracy = accuracy_score(
     y_test,
     pred
@@ -260,7 +209,6 @@ roc_auc = roc_auc_score(
     average="weighted"
 )
 
-
 print("\n" + "=" * 70)
 print("📊 RESULTADOS DEL MODELO OPTIMIZADO")
 print("=" * 70)
@@ -271,11 +219,7 @@ print(f"Recall   : {recall:.4f}")
 print(f"F1-Score : {f1:.4f}")
 print(f"ROC-AUC  : {roc_auc:.4f}")
 
-
-# ============================================================
 # REPORTE
-# ============================================================
-
 print("\n" + "=" * 70)
 print("📋 REPORTE DE CLASIFICACIÓN")
 print("=" * 70)
@@ -293,40 +237,27 @@ print(
     )
 )
 
-
-# ============================================================
 # MATRIZ DE CONFUSIÓN
-# ============================================================
-
 matriz = confusion_matrix(
     y_test,
     pred
 )
 
 print("\n🔢 MATRIZ DE CONFUSIÓN:")
-
 print(matriz)
 
-
-# ============================================================
 # IMPORTANCIA DE VARIABLES
-# ============================================================
-
 modelo_rf = modelo_optimizado.named_steps["modelo"]
 
 importancia = pd.DataFrame({
-
     "variable": VARIABLES,
-
     "importancia": modelo_rf.feature_importances_
-
 })
 
 importancia = importancia.sort_values(
     "importancia",
     ascending=False
 )
-
 
 print("\n" + "=" * 70)
 print("🔬 IMPORTANCIA DE VARIABLES")
@@ -339,11 +270,7 @@ print(
     )
 )
 
-
-# ============================================================
 # GUARDAR MODELO
-# ============================================================
-
 modelo_path = (
     MODELS_DIR
     / "exopredict_model_optimizado.pkl"
@@ -355,38 +282,21 @@ joblib.dump(
 )
 
 print("\n💾 Modelo optimizado guardado en:")
-
 print(modelo_path)
 
-
-# ============================================================
 # GUARDAR MÉTRICAS
-# ============================================================
-
 metricas = {
-
     "modelo": "Random Forest Optimizado",
-
     "accuracy": accuracy,
-
     "precision": precision,
-
     "recall": recall,
-
     "f1": f1,
-
     "roc_auc": roc_auc,
-
     "f1_validacion_cruzada": busqueda.best_score_,
-
     "confusion_matrix": matriz,
-
     "variables": VARIABLES,
-
     "mejores_parametros": busqueda.best_params_
-
 }
-
 
 metricas_path = (
     MODELS_DIR
@@ -399,14 +309,9 @@ joblib.dump(
 )
 
 print("\n📊 Métricas guardadas en:")
-
 print(metricas_path)
 
-
-# ============================================================
 # FINAL
-# ============================================================
-
 print("\n" + "=" * 70)
 print("✅ OPTIMIZACIÓN COMPLETADA")
 print("=" * 70)

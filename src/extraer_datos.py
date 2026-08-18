@@ -2,21 +2,13 @@ import requests
 import pandas as pd
 from pathlib import Path
 
-
-# ==========================================
 # CONFIGURACIÓN
-# ==========================================
-
 URL_TAP = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 OUTPUT_FILE = BASE_DIR / "data" / "raw" / "nasa_koi_raw.csv"
 
-
-# ==========================================
 # CONSULTA NASA
-# ==========================================
-
 QUERY = """
 SELECT
     kepid,
@@ -43,14 +35,9 @@ FROM q1_q17_dr25_koi
 WHERE koi_disposition IS NOT NULL
 """
 
-# ==========================================
 # EXTRACCIÓN
-# ==========================================
-
 def extraer_datos():
-
     print("🚀 Conectando con NASA Exoplanet Archive...")
-
     parametros = {
         "query": QUERY,
         "format": "csv"
@@ -61,7 +48,6 @@ def extraer_datos():
         params=parametros,
         timeout=60
     )
-
     respuesta.raise_for_status()
 
     print("✅ Datos recibidos correctamente.")
@@ -74,15 +60,10 @@ def extraer_datos():
     print(f"📊 Registros obtenidos: {len(datos)}")
     print(f"📋 Columnas obtenidas: {len(datos.columns)}")
 
-    return datos
+    return extraer_datos
 
-
-# ==========================================
 # EJECUCIÓN
-# ==========================================
-
 if __name__ == "__main__":
-
     datos = extraer_datos()
 
     print("\nPrimeros registros:")

@@ -21,13 +21,8 @@ from sklearn.metrics import (
     roc_auc_score
 )
 
-
-# ============================================================
 # CONFIGURACIÓN
-# ============================================================
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 INPUT_FILE = (
     BASE_DIR
     / "data"
@@ -36,17 +31,12 @@ INPUT_FILE = (
 )
 
 MODELS_DIR = BASE_DIR / "models"
-
 MODELS_DIR.mkdir(
     parents=True,
     exist_ok=True
 )
 
-
-# ============================================================
 # VARIABLES
-# ============================================================
-
 VARIABLES = [
     "koi_period",
     "koi_duration",
@@ -60,15 +50,9 @@ VARIABLES = [
     "koi_slogg",
     "koi_srad"
 ]
-
 OBJETIVO = "target"
 
-
-# ============================================================
 # CARGAR DATOS
-# ============================================================
-
-print("=" * 65)
 print("🚀 EXOPREDICT - ENTRENAMIENTO DE MODELOS")
 print("=" * 65)
 
@@ -79,30 +63,18 @@ datos = pd.read_csv(INPUT_FILE)
 print(f"✓ Registros: {len(datos)}")
 print(f"✓ Variables predictoras: {len(VARIABLES)}")
 
-
-# ============================================================
 # X / Y
-# ============================================================
-
 X = datos[VARIABLES]
-
 y = datos[OBJETIVO]
 
-
 print("\n🎯 Variable objetivo:")
-
 print(
     datos["koi_disposition"]
     .value_counts()
 )
 
-
-# ============================================================
 # TRAIN / TEST
-# ============================================================
-
 print("\n✂️ Separando datos...")
-
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -114,11 +86,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 print(f"✓ Entrenamiento: {len(X_train)} registros")
 print(f"✓ Prueba: {len(X_test)} registros")
 
-
-# ============================================================
 # MODELO 1 - REGRESIÓN LOGÍSTICA
-# ============================================================
-
 print("\n" + "=" * 65)
 print("📈 MODELO 1 - REGRESIÓN LOGÍSTICA")
 print("=" * 65)
@@ -147,14 +115,9 @@ modelo_logistico.fit(
 )
 
 pred_logistico = modelo_logistico.predict(X_test)
-
 prob_logistico = modelo_logistico.predict_proba(X_test)
 
-
-# ============================================================
 # MÉTRICAS LOGÍSTICA
-# ============================================================
-
 accuracy_logistico = accuracy_score(
     y_test,
     pred_logistico
@@ -188,18 +151,13 @@ auc_logistico = roc_auc_score(
     average="weighted"
 )
 
-
 print(f"\nAccuracy : {accuracy_logistico:.4f}")
 print(f"Precision: {precision_logistico:.4f}")
 print(f"Recall   : {recall_logistico:.4f}")
 print(f"F1-Score : {f1_logistico:.4f}")
 print(f"ROC-AUC  : {auc_logistico:.4f}")
 
-
-# ============================================================
 # MODELO 2 - RANDOM FOREST
-# ============================================================
-
 print("\n" + "=" * 65)
 print("🌲 MODELO 2 - RANDOM FOREST")
 print("=" * 65)
@@ -222,21 +180,15 @@ modelo_rf = Pipeline([
         )
     )
 ])
-
 modelo_rf.fit(
     X_train,
     y_train
 )
 
 pred_rf = modelo_rf.predict(X_test)
-
 prob_rf = modelo_rf.predict_proba(X_test)
 
-
-# ============================================================
 # MÉTRICAS RANDOM FOREST
-# ============================================================
-
 accuracy_rf = accuracy_score(
     y_test,
     pred_rf
@@ -270,22 +222,16 @@ auc_rf = roc_auc_score(
     average="weighted"
 )
 
-
 print(f"\nAccuracy : {accuracy_rf:.4f}")
 print(f"Precision: {precision_rf:.4f}")
 print(f"Recall   : {recall_rf:.4f}")
 print(f"F1-Score : {f1_rf:.4f}")
 print(f"ROC-AUC  : {auc_rf:.4f}")
 
-
-# ============================================================
 # COMPARACIÓN
-# ============================================================
-
 print("\n" + "=" * 65)
 print("🏆 COMPARACIÓN DE MODELOS")
 print("=" * 65)
-
 comparacion = pd.DataFrame({
     "Modelo": [
         "Regresión Logística",
@@ -320,11 +266,7 @@ print(
     )
 )
 
-
-# ============================================================
 # ELEGIR MEJOR MODELO
-# ============================================================
-
 if f1_rf >= f1_logistico:
 
     mejor_modelo = modelo_rf
@@ -335,7 +277,6 @@ if f1_rf >= f1_logistico:
     prob_mejor = prob_rf
 
 else:
-
     mejor_modelo = modelo_logistico
     nombre_mejor = "Regresión Logística"
     mejor_f1 = f1_logistico
@@ -343,19 +284,13 @@ else:
     pred_mejor = pred_logistico
     prob_mejor = prob_logistico
 
-
 print("\n🏆 Mejor modelo:", nombre_mejor)
 print(f"F1-Score: {mejor_f1:.4f}")
 
-
-# ============================================================
 # REPORTE DE CLASIFICACIÓN
-# ============================================================
-
 print("\n" + "=" * 65)
 print("📋 REPORTE DE CLASIFICACIÓN")
 print("=" * 65)
-
 print(
     classification_report(
         y_test,
@@ -369,29 +304,17 @@ print(
     )
 )
 
-
-# ============================================================
 # MATRIZ DE CONFUSIÓN
-# ============================================================
-
 matriz = confusion_matrix(
     y_test,
     pred_mejor
 )
-
 print("\n🔢 MATRIZ DE CONFUSIÓN:")
-
 print(matriz)
 
-
-# ============================================================
 # IMPORTANCIA DE VARIABLES
-# ============================================================
-
 if nombre_mejor == "Random Forest":
-
     modelo_final_rf = mejor_modelo.named_steps["modelo"]
-
     importancia = pd.DataFrame({
         "variable": VARIABLES,
         "importancia": modelo_final_rf.feature_importances_
@@ -412,34 +335,22 @@ if nombre_mejor == "Random Forest":
             float_format=lambda x: f"{x:.4f}"
         )
     )
-
 else:
 
     importancia = None
 
-
-# ============================================================
 # GUARDAR MODELO
-# ============================================================
-
 modelo_path = MODELS_DIR / "exopredict_model.pkl"
-
 joblib.dump(
     mejor_modelo,
     modelo_path
 )
-
 print("\n💾 Modelo guardado en:")
 print(modelo_path)
 
-
-# ============================================================
 # GUARDAR MÉTRICAS
-# ============================================================
-
 metricas = {
     "modelo": nombre_mejor,
-
     "accuracy": accuracy_score(
         y_test,
         pred_mejor
@@ -472,15 +383,11 @@ metricas = {
         multi_class="ovr",
         average="weighted"
     ),
-
     "confusion_matrix": matriz,
-
     "variables": VARIABLES
 }
 
-
 metricas_path = MODELS_DIR / "metricas_modelo.pkl"
-
 joblib.dump(
     metricas,
     metricas_path
@@ -489,11 +396,7 @@ joblib.dump(
 print("\n📊 Métricas guardadas en:")
 print(metricas_path)
 
-
-# ============================================================
 # FINAL
-# ============================================================
-
 print("\n" + "=" * 65)
 print("✅ ENTRENAMIENTO COMPLETADO")
 print("=" * 65)
